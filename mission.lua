@@ -21,6 +21,7 @@ mission.default.condition_font_color = {127,127,127}
 mission.default.condition_align = "center"
 
 mission.default.reset_color = {255,255,255}
+mission.default.global_opacity = 255
 
 mission.default.default_update = function(self,dt)
   if not love.keyboard.isDown(" ") then
@@ -74,14 +75,14 @@ function mission:draw()
     local old_color = {love.graphics.getColor()}
     local old_font = love.graphics.getFont()
     
-    love.graphics.setColor(self.config.frame_color)
+    love.graphics.setColor(mission._truecolor(self,self.config.frame_color))
     love.graphics.rectangle("fill",
       self.config.window.x,
       self.config.window.y,
       self.config.window.w,
       self.config.window.h)
     
-    love.graphics.setColor(self.config.reset_color)
+    love.graphics.setColor(mission._truecolor(self,self.config.reset_color))
     
     local img_w = 0
     if self.data[self.state].image then
@@ -102,7 +103,7 @@ function mission:draw()
     
     local body_offset = 0
     if self.data[self.state].name then
-      love.graphics.setColor(self.config.title_font_color)
+      love.graphics.setColor(mission._truecolor(self,self.config.title_font_color))
       love.graphics.setFont(self.config.title_font)
       
       body_offset = self.config.title_font:getHeight()
@@ -115,7 +116,7 @@ function mission:draw()
     end
 
     if self.data[self.state].body then
-      love.graphics.setColor(self.config.body_font_color)
+      love.graphics.setColor(mission._truecolor(self,self.config.body_font_color))
       love.graphics.setFont(self.config.body_font)
       love.graphics.printf(self.data[self.state].body,
         self.config.window.x + self.config.padding + img_w,
@@ -129,7 +130,7 @@ function mission:draw()
       cond = self.data[self.state].condition
     end
     
-    love.graphics.setColor(self.config.condition_font_color)
+    love.graphics.setColor(mission._truecolor(self,self.config.condition_font_color))
     love.graphics.setFont(self.config.condition_font)
     love.graphics.printf(cond,
       self.config.window.x + self.config.padding + img_w,
@@ -161,6 +162,18 @@ function mission._init(self)
     end
   end
   
+end
+
+function mission._truecolor(self,color)
+  -- duplicate the color table
+  local newcolor = {color[1],color[2],color[3],color[4]}
+  
+  if newcolor[4] then -- if there is an alpha
+    newcolor[4] = newcolor[4]*self.config.global_opacity/255
+  else
+    newcolor[4] = self.config.global_opacity
+  end
+  return newcolor
 end
 
 function mission:update(dt)
