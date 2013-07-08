@@ -60,8 +60,6 @@ function mission.new(data,config)
   -- init args
   obj.data = data
 
-  mission._init(obj)
-  
   -- func init
   obj.update = mission.update
   obj.draw = mission.draw
@@ -177,6 +175,12 @@ function mission._truecolor(self,color)
 end
 
 function mission:update(dt)
+
+  if not self.initdone then
+    mission._init(self)
+    self.initdone = true
+  end
+
   if self.data[self.state] then
     local up = self.config.default_update
     if self.data[self.state].update then
